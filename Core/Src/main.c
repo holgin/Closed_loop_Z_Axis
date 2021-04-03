@@ -64,6 +64,7 @@ UART_HandleTypeDef huart1;
 /* USER CODE BEGIN PV */
 	uint8_t flag;
 
+	int32_t rotaryCNT = 0;
 	int32_t encPos = 0;
 	int32_t umPos = 0;
 	int32_t oldPos = 0;
@@ -120,6 +121,23 @@ void print_STEPDIR(uint32_t counts);
 		przec = (enc_um - calk * 1000);
 		//print encoder readout in mm
 		sprintf(str, "Enc: %ld.%.3ld mm", calk, przec);
+		ssd1306_SetCursor(2, 0);
+		ssd1306_WriteString(str, Font_7x10, White);
+		//calculate position target set by STEP/DIR
+		calk = SD_um / 1000;
+		przec = (SD_um - calk * 1000);
+		//print
+		sprintf(str, "Set: %ld.%.3ld mm", calk, przec);
+		//sprintf(str, "Set: %d steps     ", steps);
+		ssd1306_SetCursor(2, 15);
+		ssd1306_WriteString(str, Font_7x10, White);
+		ssd1306_UpdateScreen();
+	}
+	extern void printData_LCD_rotary(int32_t enc_CNT, int32_t SD_um)
+	{
+		enc_CNT = -enc_CNT;
+		//print encoder readout
+		sprintf(str, "Enc: %ld cnts    ", enc_CNT);
 		ssd1306_SetCursor(2, 0);
 		ssd1306_WriteString(str, Font_7x10, White);
 		//calculate position target set by STEP/DIR
@@ -208,10 +226,17 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	encPos = 5 * (TIM2->CNT - TIMER_OFFSET); //read the value from the encoder
+	//encPos = 5 * (TIM2->CNT - TIMER_OFFSET); //read the value from the Linear Encoder
+	rotaryCNT = (TIM2->CNT - TIMER_OFFSET); //ready the CNTs from the Rotary Encoder
 	//setPos = (TimerOV * T3_ov_cnt) + TIM3->CNT; //read the value from the STEPDIR encoder and calculate
 
 	setPos = ((((TimerOV * T3_ov_cnt) + TIM3->CNT) * 10) >> 4) - 400000; // divide by 16;
+
+	//4mm pitch
+	//200 steps motor
+	//16 uSteps
+	//One rotation = 3200 pulses, 1mm
+
 
 	//get the timer counts and add previous Overflows, apply the offset; then calculate it for micrometers
 
@@ -235,25 +260,7 @@ int main(void)
 				TIM17->ARR = 0; //reset timer
 			}
 
-/*		if ((uint)error <= 10)
-			{
-				TIM14->ARR = 24999;
-			} else {
-				//TIM14->ARR = 100 + TIM1->CCR2;
-				TIM14->ARR = 8999;
-		}
-*/
 
-		/*
-		HAL_TIM_Base_Start(&htim14);
-		acceleration = TIM14->CNT;
-		if (acceleration >= 2800 )
-			{
-				acceleration = 2800;
-				HAL_TIM_Base_Stop(&htim14);
-			}
-		*/
-		//TIM1->ARR = 2999 - acceleration;//- TIM14->CNT;//(error >> 2);
 		HAL_TIM_PWM_Start(&htim14, TIM_CHANNEL_1);
 	} else {
 		HAL_TIM_PWM_Stop(&htim14, TIM_CHANNEL_1);

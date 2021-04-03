@@ -69,6 +69,7 @@ extern uint8_t flag = 0;
 extern int32_t setPos;
 extern int32_t encPos;
 extern int32_t T3_ov_cnt;
+extern int32_t rotaryCNT;
 /* USER CODE END EV */
 
 /******************************************************************************/
@@ -242,12 +243,13 @@ void TIM3_IRQHandler(void)
 void TIM16_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM16_IRQn 0 */
-	printData_LCD(encPos, setPos); //print calculated values
-	//printData_LCD(TIM2->CNT - 2000000000, setPos); //print RAW cnt value from the encoder
+	//printData_LCD(encPos, setPos); //print calculated values for Linear Encoder
+	printData_LCD_rotary(rotaryCNT, setPos); //print values for Rotary Encoder
 
 	//printData_LCD(encPos, HAL_TIM_ReadCapturedValue(&htim1, TIM_CHANNEL_1)); //print to the LCD read PWM freq instead
 
-	//print_RAW(TIM1->CCR2);
+	print_RAW(TIM2->CNT);
+	print_RAW(encPos);
   /* USER CODE END TIM16_IRQn 0 */
   HAL_TIM_IRQHandler(&htim16);
   /* USER CODE BEGIN TIM16_IRQn 1 */
