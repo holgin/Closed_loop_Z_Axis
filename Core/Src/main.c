@@ -226,8 +226,8 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	//encPos = 5 * (TIM2->CNT - TIMER_OFFSET); //read the value from the Linear Encoder
-	rotaryCNT = (TIM2->CNT - TIMER_OFFSET); //ready the CNTs from the Rotary Encoder
+	encPos = 5 * (TIM2->CNT - TIMER_OFFSET); //read the value from the Linear Encoder
+	//rotaryCNT = (TIM2->CNT - TIMER_OFFSET); //ready the CNTs from the Rotary Encoder
 	//setPos = (TimerOV * T3_ov_cnt) + TIM3->CNT; //read the value from the STEPDIR encoder and calculate
 
 	setPos = ((((TimerOV * T3_ov_cnt) + TIM3->CNT) * 10) >> 4) - 400000; // divide by 16;
